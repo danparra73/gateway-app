@@ -25,10 +25,6 @@ resilience4j:
       apiRouteCB:
         timeoutDuration: 3s
 
-uri-config:
-  spa-uri: http://spa:8080
-  api-uri: http://api:8080
-
 
 logging:
   level:
