@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  api:
+    image: openjdk:21-slim
+    container_name: api
+    volumes:
+      - ./api/target/api.jar:/app/api.jar
+    working_dir: /app
+    command: ["java", "-jar", "api.jar"]
+    ports:
+      - "8081:8080"
+
+  gateway:
+    image: openjdk:21-slim
+    container_name: gateway
+    volumes:
+      - ./gateway/target/gateway.jar:/app/gateway.jar
+    working_dir: /app
+    command: ["java", "-jar", "gateway.jar"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api

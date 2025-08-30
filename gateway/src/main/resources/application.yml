@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: GateWay
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: apiRoute
+              uri: http://api:8080
+              predicates:
+                - Path=/api/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: apiRouteCB
+                    fallbackUri: forward:/fallback/api
+
+resilience4j:
+  timelimiter:
+    instances:
+      apiRouteCB:
+        timeoutDuration: 3s
+
+uri-config:
+  spa-uri: http://spa:8080
+  api-uri: http://api:8080
+
+
+logging:
+  level:
+    root: warn
