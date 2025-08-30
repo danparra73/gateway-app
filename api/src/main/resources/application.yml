@@ -4,3 +4,11 @@ server:
 spring:
   application:
     name: API
+  output:
+    ansi:
+      enabled: always
+
+
+logging:
+  level:
+    root: info

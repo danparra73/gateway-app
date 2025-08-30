@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: GateWay
+  output:
+    ansi:
+      enabled: always
   cloud:
     gateway:
       server:
@@ -28,4 +31,4 @@ resilience4j:
 
 logging:
   level:
-    root: warn
+    root: info
