@@ -1,6 +1,14 @@
 server:
   port: 8080
 
+webapp-uris:
+  api-uri: "http://api:8080"
+  spa-uri: "http://api:3000"
+  idp-uri: "http://idp:8080"
+  logout:
+    post-logout-redirect-uri: "http://localhost:8080/signout"
+    idp-logout-uri : "http://localhost:9000/realms/master/protocol/openid-connect/logout"
+
 spring:
   application:
     name: GateWay
@@ -11,16 +19,60 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            corsConfigurations:
+              "[/**]":
+                allowedOrigins:
+                  - ${webapp-uris.api-uri}
+                  - ${webapp-uris.spa-uri}
+                  - ${webapp-uris.idp-uri}
+                allowedMethods:
+                  - "GET"
+                  - "POST"
+                  - "PUT"
+                  - "DELETE"
+                  - "OPTIONS"
+                allowCredentials: true
+                maxAge: 1800
           routes:
             - id: apiRoute
-              uri: http://api:8080
+              uri: ${webapp-uris.api-uri}
               predicates:
                 - Path=/api/**
               filters:
+                - TokenRelay
+                - RemoveRequestHeader=Cookie
                 - name: CircuitBreaker
                   args:
                     name: apiRouteCB
                     fallbackUri: forward:/fallback/api
+            - id: spa
+              uri: ${webapp-uris.spa-uri}
+              predicates:
+                - Path=/spa/**
+              filters:
+                - TokenRelay
+                - SaveSession
+                - RemoveRequestHeader=Cookie
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: gateway-app
+            client-secret: Txx7ZB6VW1cuvqIXgKHYEJ15CHJNo9Vc
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+            scope: openid,profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9000/realms/master
+            authorization-uri: http://localhost:9000/realms/master/protocol/openid-connect/auth
+            token-uri: http://localhost:9000/realms/master/protocol/openid-connect/token
+            user-info-uri: http://localhost:9000/realms/master/protocol/openid-connect/userinfo
 
 resilience4j:
   timelimiter:
@@ -28,7 +80,27 @@ resilience4j:
       apiRouteCB:
         timeoutDuration: 3s
 
-
 logging:
   level:
-    root: info
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.web: DEBUG
+    org.springframework.security.web.server: DEBUG
+    org.springframework.security.authentication: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.client: DEBUG
+    org.springframework.security.oauth2.server.resource: DEBUG
+    org.springframework.security.oauth2.jwt: DEBUG
+    org.springframework.web.cors.reactive: DEBUG
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+webapp-uris:
+  api-uri: "http://localhost:8081"
+  spa-uri: "http://127.0.0.1:3000"
+  idp-uri: "http://localhost:9000"
