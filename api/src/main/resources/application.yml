@@ -4,3 +4,35 @@ server:
 spring:
   application:
     name: API
+  output:
+    ansi:
+      enabled: always
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000/realms/master
+          # Optionally, you can specify jwk-set-uri instead of issuer-uri:
+          jwk-set-uri: http://localhost:9000/realms/master/protocol/openid-connect/certs
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.web: DEBUG
+    org.springframework.security.web.server: DEBUG
+    org.springframework.security.authentication: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.client: DEBUG
+    org.springframework.security.oauth2.server.resource: DEBUG
+    org.springframework.security.oauth2.jwt: DEBUG
+    org.springframework.web.cors.reactive: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+server:
+  port: 8081

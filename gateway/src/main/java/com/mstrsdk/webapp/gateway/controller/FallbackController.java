@@ -18,15 +18,13 @@ public class FallbackController {
 
     @RequestMapping("/api")
     public Mono<ResponseEntity<Map<String, String>>> apiFallback(ServerHttpRequest request) {
-
         MultiValueMap<String, String> queryParams = request.getQueryParams();
         final URI uri = request.getURI();
 
         final Map<String, String> message = new HashMap<>();
-        message.put("message", "fallback");
+        message.put("message", "API Service not available");
         message.put("path", uri.getPath());
         message.put("queryParams", queryParams.toString());
-
 
         return Mono.just(
                 ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
